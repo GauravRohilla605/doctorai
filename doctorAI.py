@@ -5,7 +5,7 @@
 
 import sys, random
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 from collections import OrderedDict
 import argparse
 
