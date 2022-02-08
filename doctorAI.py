@@ -36,11 +36,11 @@ def init_params(options):
 	numClass = options['numClass']
 
 	if len(embFile) > 0: 
-		print 'using external code embedding'
+		print('using external code embedding')
 		params['W_emb'] = load_embedding(embFile)
 		embSize = params['W_emb'].shape[1]
 	else: 
-		print 'using randomly initialized code embedding'
+		print('using randomly initialized code embedding')
 		params['W_emb'] = np.random.uniform(-0.01, 0.01, (inputDimSize, embSize)).astype(config.floatX)
 	params['b_emb'] = np.zeros(embSize).astype(config.floatX)
 
