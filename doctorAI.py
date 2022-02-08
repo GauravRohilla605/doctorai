@@ -374,51 +374,51 @@ def train_doctorAI(
 	else: useTime = False
 	options['useTime'] = useTime
 	
-	print 'Initializing the parameters ... ',
+	print('Initializing the parameters ... '),
 	params = init_params(options)
 	tparams = init_tparams(params, options)
 
-	print 'Building the model ... ',
+	print('Building the model ... '),
 	f_grad_shared = None
 	f_update = None
 	if predictTime and embFineTune:
-		print 'predicting duration, fine-tuning code representations'
+		print('predicting duration, fine-tuning code representations')
 		use_noise, x, y, t, t_label, mask, lengths, cost =  build_model(tparams, options)
 		grads = T.grad(cost, wrt=tparams.values())
 		f_grad_shared, f_update = adadelta(tparams, grads, x, y, mask, lengths, cost, options, t, t_label)
 	elif predictTime and not embFineTune:
-		print 'predicting duration, not fine-tuning code representations'
+		print('predicting duration, not fine-tuning code representations')
 		W_emb = theano.shared(params['W_emb'], name='W_emb')
 		use_noise, x, y, t, t_label, mask, lengths, cost =  build_model(tparams, options, W_emb)
 		grads = T.grad(cost, wrt=tparams.values())
 		f_grad_shared, f_update = adadelta(tparams, grads, x, y, mask, lengths, cost, options, t, t_label)
 	elif useTime and embFineTune:
-		print 'using duration information, fine-tuning code representations'
+		print('using duration information, fine-tuning code representations')
 		use_noise, x, y, t, mask, lengths, cost =  build_model(tparams, options)
 		grads = T.grad(cost, wrt=tparams.values())
 		f_grad_shared, f_update = adadelta(tparams, grads, x, y, mask, lengths, cost, options, t)
 	elif useTime and not embFineTune:
-		print 'using duration information, not fine-tuning code representations'
+		print('using duration information, not fine-tuning code representations')
 		W_emb = theano.shared(params['W_emb'], name='W_emb')
 		use_noise, x, y, t, mask, lengths, cost =  build_model(tparams, options, W_emb)
 		grads = T.grad(cost, wrt=tparams.values())
 		f_grad_shared, f_update = adadelta(tparams, grads, x, y, mask, lengths, cost, options, t)
 	elif not useTime and embFineTune:
-		print 'not using duration information, fine-tuning code representations'
+		print('not using duration information, fine-tuning code representations')
 		use_noise, x, y, mask, lengths, cost =  build_model(tparams, options)
 		grads = T.grad(cost, wrt=tparams.values())
 		f_grad_shared, f_update = adadelta(tparams, grads, x, y, mask, lengths, cost, options)
 	elif not useTime and not embFineTune:
-		print 'not using duration information, not fine-tuning code representations'
+		print('not using duration information, not fine-tuning code representations')
 		W_emb = theano.shared(params['W_emb'], name='W_emb')
 		use_noise, x, y, mask, lengths, cost =  build_model(tparams, options, W_emb)
 		grads = T.grad(cost, wrt=tparams.values())
 		f_grad_shared, f_update = adadelta(tparams, grads, x, y, mask, lengths, cost, options)
 
-	print 'Loading data ... ',
+	print('Loading data ... '),
 	trainSet, validSet, testSet = load_data(seqFile, labelFile, timeFile)
 	n_batches = int(np.ceil(float(len(trainSet[0])) / float(batchSize)))
-	print 'done'
+	print('done')
 
 	if predictTime: test_model = theano.function(inputs=[x, y, t, t_label, mask, lengths], outputs=cost, name='test_model')
 	elif useTime: test_model = theano.function(inputs=[x, y, t, mask, lengths], outputs=cost, name='test_model')
@@ -427,7 +427,7 @@ def train_doctorAI(
 	bestValidCrossEntropy = 1e20
 	bestValidEpoch = 0
 	testCrossEntropy = 0.0
-	print 'Optimization start !!'
+	print('Optimization start !!')
 	for epoch in xrange(max_epochs):
 		iteration = 0
 		costVector = []
@@ -448,23 +448,23 @@ def train_doctorAI(
 				cost = f_grad_shared(x, y, mask, lengths)
 			costVector.append(cost)
 			f_update()
-			if (iteration % 10 == 0) and verbose: print 'epoch:%d, iteration:%d/%d, cost:%f' % (epoch, iteration, n_batches, cost)
+			if (iteration % 10 == 0) and verbose: print('epoch:%d, iteration:%d/%d, cost:%f') % (epoch, iteration, n_batches, cost)
 			iteration += 1
 
-		print 'epoch:%d, mean_cost:%f' % (epoch, np.mean(costVector))
+		print('epoch:%d, mean_cost:%f') % (epoch, np.mean(costVector))
 		use_noise.set_value(0.)
 		validAuc = calculate_auc(test_model, validSet, options)
-		print 'Validation cross entropy:%f at epoch:%d' % (validAuc, epoch)
+		print('Validation cross entropy:%f at epoch:%d') % (validAuc, epoch)
 		if validAuc < bestValidCrossEntropy: 
 			bestValidCrossEntropy = validAuc
 			bestValidEpoch = epoch
 			bestParams = unzip(tparams)
 			testCrossEntropy = calculate_auc(test_model, testSet, options)
-			print 'Test cross entropy:%f at epoch:%d' % (testCrossEntropy, epoch)
+			print('Test cross entropy:%f at epoch:%d') % (testCrossEntropy, epoch)
 			tempParams = unzip(tparams)
 			np.savez_compressed(outFile + '.' + str(epoch), **tempParams)
-	print 'The best valid cross entropy:%f at epoch:%d' % (bestValidCrossEntropy, bestValidEpoch)
-	print 'The test cross entropy: %f' % testCrossEntropy
+	print('The best valid cross entropy:%f at epoch:%d') % (bestValidCrossEntropy, bestValidEpoch)
+	print('The test cross entropy: %f') % testCrossEntropy
 	
 def parse_arguments(parser):
 	parser.add_argument('seq_file', type=str, metavar='<visit_file>', help='The path to the Pickled file containing visit information of patients')
@@ -496,7 +496,7 @@ if __name__ == '__main__':
 	hiddenDimSize = [int(strDim) for strDim in args.hidden_dim_size[1:-1].split(',')]
 
 	if args.predict_time and args.time_file == '':
-		print 'Cannot predict time duration without time file'
+		print('Cannot predict time duration without time file')
 		sys.exit()
 
 	train_doctorAI(
