@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
 	print('Building pid-sortedVisits mapping')
 	pidSeqMap = {}
-	for pid, admIdList in pidAdmMap.iteritems():
+	for pid, admIdList in pidAdmMap.items():
 		if len(admIdList) < 2: continue
 		sortedList = sorted([(admDateMap[admId], admDxMap[admId]) for admId in admIdList])
 		pidSeqMap[pid] = sortedList
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 	pids = []
 	dates = []
 	seqs = []
-	for pid, visits in pidSeqMap.iteritems():
+	for pid, visits in pidSeqMap.items():
 		pids.append(pid)
 		seq = []
 		date = []
