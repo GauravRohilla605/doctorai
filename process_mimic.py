@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	diagnosisFile = sys.argv[2]
 	outFile = sys.argv[3]
 
-	print 'Building pid-admission mapping, admission-date mapping'
+	print('Building pid-admission mapping, admission-date mapping')
 	pidAdmMap = {}
 	admDateMap = {}
 	infd = open(admissionFile, 'r')
